@@ -3,44 +3,66 @@
 #include <Servo.h>
 
 Servo spinguy;
+Servo servo2;
+Servo servo3;
 
-SoftwareSerial mySerial(11, 9); //this says that tx and rx are conected to 11 and 9
+SoftwareSerial mySerial(11, 9);  // RX, TX
 DFRobotDFPlayerMini player;
-
 
 void setup() {
 
-pinMode(2, INPUT_PULLUP); // this sets the arduinos built in resistors for the buttons (also the buttons must start low for this)
-pinMode(4, INPUT_PULLUP);
+  pinMode(2, INPUT_PULLUP);
+  pinMode(4, INPUT_PULLUP);
 
-spinguy.attach(10);
+  spinguy.attach(10);
+  servo2.attach(12);
+  servo3.attach(13);
 
-Serial.begin(9600);
-mySerial.begin(9600);
+  servo3.write(0);   // starting position
 
-if (player.begin(mySerial)){
-  Serial.println("Check one: CLEAR");
-}else{
-  Serial.println("Check one: FAIL"); // check to see if working
-}
+  Serial.begin(9600);
+  mySerial.begin(9600);
 
-player.volume(25);
+  if (player.begin(mySerial)) {
+    Serial.println("Check one: CLEAR");
+  } else {
+    Serial.println("Check one: FAIL");
+  }
 
+  player.volume(25);
 }
 
 void loop() {
-  spinguy.write(180);
-if (digitalRead(2) == LOW){
-  player.play(1); // plays audio one (the audio's name is 0001.mp3)
-  while(digitalRead(2) == LOW); // this makes it so you only press the button once and it will play the full audio, if you press another button whle this plays it will switch to that or start over.
-  delay(100);
-}
-if (digitalRead(4) == LOW){
-  player.play(2); // plays audio 2 (the audio's name is 0002.mp3)
-  while(digitalRead(4) == LOW);
-  delay(100);
 
- 
-}
+  // First two servos continuously spin
+  spinguy.write(180); // full/normal speed
+  servo2.write(100); // slower speed
 
+  // Button 1
+  if (digitalRead(2) == LOW) {
+
+    servo3.write(180);   // raise object
+    player.play(1);      // play 0001.mp3
+
+    delay(6000);         // wait for audio to finish
+
+    servo3.write(0);     // lower object
+
+    while (digitalRead(2) == LOW);
+    delay(100);
+  }
+
+  // Button 2
+  if (digitalRead(4) == LOW) {
+
+    servo3.write(180);   // raise object
+    player.play(2);      // play 0002.mp3
+
+    delay(6000);         // wait for audio to finish
+
+    servo3.write(0);     // lower object
+
+    while (digitalRead(4) == LOW);
+    delay(100);
+  }
 }
