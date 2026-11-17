@@ -2,10 +2,10 @@
 #include "DFRobotDFPlayerMini.h"
 #include <Servo.h>
 
-Servo spinguy;    // King's face
-Servo servo2;     // 180° servo
-Servo servo3;     // Platform 360° servo
-Servo cageServo;  // Cage 360° servo
+Servo spinguy;   // King's face
+Servo servo2;    // 180° servo
+Servo servo3;    // Platform 360° servo
+Servo servo4;    // Cage 360° servo
 
 SoftwareSerial mySerial(11, 9);  // RX, TX
 DFRobotDFPlayerMini player;
@@ -23,11 +23,11 @@ void setup() {
   spinguy.attach(10);
   servo2.attach(12);
   servo3.attach(13);
-  cageServo.attach(8);
+  servo4.attach(8);
 
   servo2.write(0);
-  servo3.write(90);     // stop platform servo
-  cageServo.write(90);  // stop cage servo
+  servo3.write(90);   // Stop platform servo
+  servo4.write(90);   // Stop cage servo
 
   Serial.begin(9600);
   mySerial.begin(9600);
@@ -56,7 +56,8 @@ void loop() {
   spinguy.write(90);
   delay(3000);
 
-  // Platform movement sequence (3 segments with pauses)
+  // Platform movement sequence
+  // 3 slow movement segments with pauses, then stop forever
   if (!platformDone) {
 
     servo3.write(100);
@@ -79,7 +80,7 @@ void loop() {
     platformDone = true;
   }
 
-  // Button 1:
+  // Button 1 (Pin 2)
   // Jester (#3) then King (#4)
   if (digitalRead(2) == LOW) {
 
@@ -93,7 +94,7 @@ void loop() {
     delay(100);
   }
 
-  // Button 2:
+  // Button 2 (Pin 4)
   // King's laughter (#5)
   if (digitalRead(4) == LOW) {
 
@@ -103,31 +104,31 @@ void loop() {
     delay(100);
   }
 
-  // Button 3:
-  // Move 180° servo + play laughter + activate cage
+  // Button 3 (Pin 7)
+  // Move 180° servo + King's laughter (#5)
   if (digitalRead(7) == LOW) {
 
     servo2.write(90);
 
     player.play(5);
-    delay(6000);   // Wait for laughter audio
-
-    // Cage rotates approximately 180°
-    cageServo.write(100);
-    delay(600);
-
-    cageServo.write(90);  // Stop
-    delay(3000);          // Hold for 3 seconds
 
     while (digitalRead(7) == LOW);
     delay(100);
   }
 
-  // Button 4:
-  // King's laughter (#5)
+  // Button 4 (Pin 6)
+  // King's laughter (#5) + cage movement
   if (digitalRead(6) == LOW) {
 
     player.play(5);
+    delay(6000);   // wait for laughter to finish
+
+    // Move cage servo
+    servo4.write(100);
+    delay(600);    // adjust if movement is too much or too little
+
+    servo4.write(90); // stop servo
+    delay(3000);      // hold for 3 seconds
 
     while (digitalRead(6) == LOW);
     delay(100);
