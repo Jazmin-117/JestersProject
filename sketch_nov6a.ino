@@ -4,7 +4,7 @@
 
 Servo spinguy;   // King's face
 Servo servo2;    // Platform
-Servo servo3;    // Unused for now
+Servo servo3;    // Laughter action servo
 
 SoftwareSerial mySerial(11, 9);  // RX, TX
 DFRobotDFPlayerMini player;
@@ -17,6 +17,9 @@ void setup() {
   spinguy.attach(10);
   servo2.attach(12);
   servo3.attach(13);
+
+  // Stop servo3 initially
+  servo3.write(90);
 
   Serial.begin(9600);
   mySerial.begin(9600);
@@ -49,23 +52,47 @@ void loop() {
   delay(3000);
 
   // Button 1 (Pin 2)
-  // Plays Jester (#3) then King (#4)
+  // Jester (#3) then King (#4)
   if (digitalRead(2) == LOW) {
 
     player.play(3);   // Jester
-    delay(6000);      // wait for audio #3
+    delay(6000);
 
     player.play(4);   // King
-    delay(6000);      // wait for audio #4
+    delay(6000);
 
     while (digitalRead(2) == LOW);
     delay(100);
   }
 
   // Button 2 (Pin 4)
+  // King's laughter (#5) + one full servo rotation
   if (digitalRead(4) == LOW) {
 
-    player.play(2);
+    player.play(5);
+
+    // 0° -> 90°
+    servo3.write(180);
+    delay(500);
+    servo3.write(90);
+    delay(1000);
+
+    // 90° -> 180°
+    servo3.write(180);
+    delay(500);
+    servo3.write(90);
+    delay(1000);
+
+    // 180° -> 270°
+    servo3.write(180);
+    delay(500);
+    servo3.write(90);
+    delay(1000);
+
+    // 270° -> 360°
+    servo3.write(180);
+    delay(500);
+    servo3.write(90);
 
     while (digitalRead(4) == LOW);
     delay(100);
